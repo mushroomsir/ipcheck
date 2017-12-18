@@ -8,6 +8,24 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestCheck(t *testing.T) {
+	require := require.New(t)
+
+	require.Equal("1.2.3.4", ipcheck.Check("1.2.3.4").OriginalIP)
+	cases := []struct {
+		Expected bool
+		Actual   bool
+	}{
+		{true, ipcheck.Check("10.10.10.10").IsValid},
+		{false, ipcheck.Check("256.256.256.256").IsValid},
+		// isBogon Tests
+		{true, ipcheck.Check("10.0.0.1").IsBogon},
+		{false, ipcheck.Check("8.8.8.8").IsBogon},
+	}
+	for _, c := range cases {
+		require.Equal(c.Expected, c.Actual)
+	}
+}
 func TestIPcheck(t *testing.T) {
 	require := require.New(t)
 

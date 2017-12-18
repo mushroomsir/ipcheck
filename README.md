@@ -8,11 +8,9 @@ This repository lets you check if an IP matches one or more IP's or [CIDR](https
 
 ## Features
 
-- Support a single CIDR or IP string, e.g. "125.19.23.0/24", or "2001:cdba::3257:9652", or "62.230.58.1"
-- Support an array of CIDR and/or IP strings, e.g. ["125.19.23.0/24", "2001:cdba::3257:9652", "62.230.58.1"]
-- Custom file `Content-Type` for upload
-- Support add extra field to formdata
-- Download file 
+- Check a single CIDR or IP string, e.g. "125.19.23.0/24", or "2001:cdba::3257:9652", or "62.230.58.1"
+- Check an array of CIDR and/or IP strings, e.g. ["125.19.23.0/24", "2001:cdba::3257:9652", "62.230.58.1"]
+- Indicate if the IP address is part of the bogons list (https://en.wikipedia.org/wiki/Bogon_filtering)
 
 ## Installation
 
@@ -29,6 +27,8 @@ import "github.com/mushroomsir/ipcheck"
 func main() {
 	 ipcheck.IsRange("::1", "::2/128")
 	 ipcheck.IsRange("2001:cdba::3257:9652", "2001:cdba::3257:9652/128")
+	 ipcheck.Check("10.0.0.1").IsBogon
+	 ipcheck.Check("10.10.10.10").IsValid
 }
 
 ```
