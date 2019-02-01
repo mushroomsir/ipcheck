@@ -13,11 +13,33 @@ var bogonsArray = []string{"0.0.0.0/8", "10.0.0.0/8", "100.64.0.0/10", "127.0.0.
 	"172.16.0.0/12", "192.0.0.0/24", "192.0.2.0/24", "192.168.0.0/16", "198.18.0.0/15",
 	"198.51.100.0/24", "203.0.113.0/24", "224.0.0.0/3"}
 
+// AddBogonsRang ...
+func AddBogonsRang(ips ...string) {
+	for _, ip := range ips {
+		bogonsArray = append(bogonsArray, ip)
+	}
+}
+
+// RemoveBogonRang ...
+func RemoveBogonRang(ip string) {
+	for i, v := range bogonsArray {
+		if v == ip {
+			bogonsArray = append(bogonsArray[:i], bogonsArray[i+1:]...)
+			break
+		}
+	}
+}
+
 // IPinfo ...
 type IPinfo struct {
 	OriginalIP string
 	IsValid    bool
 	IsBogon    bool
+}
+
+// IsSafe the host is vaild and not bogon
+func (a *IPinfo) IsSafe() bool {
+	return a.IsValid && !a.IsBogon
 }
 
 // Check ...
@@ -30,6 +52,24 @@ func Check(ip string) *IPinfo {
 	info.IsValid = true
 	if IsRange(ip, bogonsArray...) {
 		info.IsBogon = true
+	}
+	return info
+}
+
+// DeepCheck check bogon ip by DNS
+func DeepCheck(host string) *IPinfo {
+	info := new(IPinfo)
+	info.OriginalIP = host
+	realHosts, err := net.LookupHost(host)
+	if err != nil {
+		return info
+	}
+	info.IsValid = true
+	for _, ip := range realHosts {
+		if IsRange(ip, bogonsArray...) {
+			info.IsBogon = true
+			return info
+		}
 	}
 	return info
 }

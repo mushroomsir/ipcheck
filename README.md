@@ -29,6 +29,11 @@ func main() {
 	 ipcheck.IsRange("2001:cdba::3257:9652", "2001:cdba::3257:9652/128")
 	 ipcheck.Check("10.0.0.1").IsBogon
 	 ipcheck.Check("10.10.10.10").IsValid
+
+	 ipcheck.AddBogonsRang("30.0.0.0/8", "11.0.0.0/8")
+	 ipcheck.RemoveBogonRang("224.0.0.0/3")
+
+	 ipcheck.DeepCheck("30.9.8.7").IsSafe()
 }
 
 ```

@@ -8,6 +8,40 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestDeepCheck(t *testing.T) {
+	require := require.New(t)
+	require.Equal("1.2.3.4", ipcheck.Check("1.2.3.4").OriginalIP)
+	require.True(ipcheck.DeepCheck("11.9.0.0").IsSafe())
+
+	ipcheck.AddBogonsRang("30.0.0.0/8", "11.0.0.0/8")
+	ipcheck.RemoveBogonRang("224.0.0.0/3")
+	cases := []struct {
+		Expected bool
+		Actual   bool
+	}{
+		{true, ipcheck.DeepCheck("cn.bing.com").IsSafe()},
+		{true, ipcheck.DeepCheck("8.8.8.8").IsSafe()},
+		{true, ipcheck.DeepCheck("245.0.0.8").IsSafe()},
+
+		{false, ipcheck.DeepCheck("0.0.0.8").IsSafe()},
+		{false, ipcheck.DeepCheck("256.256.256.256").IsSafe()},
+		{false, ipcheck.DeepCheck("10.0.0.1").IsSafe()},
+		{false, ipcheck.DeepCheck("11.0.0.0").IsSafe()},
+		{false, ipcheck.DeepCheck("11.9.0.0").IsSafe()},
+		{false, ipcheck.DeepCheck("11.9.8.0").IsSafe()},
+		{false, ipcheck.DeepCheck("11.9.8.7").IsSafe()},
+		{false, ipcheck.DeepCheck("30.0.0.0").IsSafe()},
+		{false, ipcheck.DeepCheck("30.9.0.0").IsSafe()},
+		{false, ipcheck.DeepCheck("30.9.8.0").IsSafe()},
+		{false, ipcheck.DeepCheck("30.9.8.7").IsSafe()},
+	}
+	for _, c := range cases {
+		require.Equal(c.Expected, c.Actual)
+	}
+	ipcheck.AddBogonsRang("224.0.0.0/3")
+	require.False(ipcheck.DeepCheck("245.0.0.8").IsSafe())
+}
+
 func TestCheck(t *testing.T) {
 	require := require.New(t)
 
@@ -21,12 +55,15 @@ func TestCheck(t *testing.T) {
 		// isBogon Tests
 		{true, ipcheck.Check("10.0.0.1").IsBogon},
 		{false, ipcheck.Check("8.8.8.8").IsBogon},
+
+		{false, ipcheck.Check("224.0.0.0").IsSafe()},
+		{false, ipcheck.Check("225.8.0.0").IsSafe()},
 	}
 	for _, c := range cases {
 		require.Equal(c.Expected, c.Actual)
 	}
 }
-func TestIPcheck(t *testing.T) {
+func TestIsRange(t *testing.T) {
 	require := require.New(t)
 
 	cases := []struct {
