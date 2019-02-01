@@ -37,7 +37,7 @@ type IPinfo struct {
 	IsBogon    bool
 }
 
-// IsSafe the host is vaild and not bogon
+// IsSafe the host is valid and not bogon
 func (a *IPinfo) IsSafe() bool {
 	return a.IsValid && !a.IsBogon
 }
