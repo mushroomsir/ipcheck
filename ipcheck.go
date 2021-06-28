@@ -1,6 +1,7 @@
 package ipcheck
 
 import (
+	"context"
 	"net"
 	"regexp"
 	"strings"
@@ -56,11 +57,11 @@ func Check(ip string) *IPinfo {
 	return info
 }
 
-// DeepCheck check bogon ip by DNS
-func DeepCheck(host string) *IPinfo {
+// DeepCheckWithContext check bogon ip by DNS with a context
+func DeepCheckWithContext(ctx context.Context, host string) *IPinfo {
 	info := new(IPinfo)
 	info.OriginalIP = host
-	realHosts, err := net.LookupHost(host)
+	realHosts, err := net.DefaultResolver.LookupHost(ctx, host)
 	if err != nil {
 		return info
 	}
@@ -72,6 +73,11 @@ func DeepCheck(host string) *IPinfo {
 		}
 	}
 	return info
+}
+
+// DeepCheck check bogon ip by DNS
+func DeepCheck(host string) *IPinfo {
+	return DeepCheckWithContext(context.Background(), host)
 }
 
 // IsRange ...

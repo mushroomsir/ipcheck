@@ -4,7 +4,7 @@
 [![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://github.com/mushroomsir/ipcheck/blob/master/LICENSE)
 [![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](http://godoc.org/github.com/mushroomsir/ipcheck)
 
-This repository lets you check if an IP matches one or more IP's or [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) ranges. It handles IPv6, IPv4, and IPv4-mapped over IPv6 addresses. 
+This repository lets you check if an IP matches one or more IP's or [CIDR](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) ranges. It handles IPv6, IPv4, and IPv4-mapped over IPv6 addresses.
 
 ## Features
 
@@ -22,20 +22,29 @@ go get github.com/mushroomsir/ipcheck
 ```go
 package main
 
-import "github.com/mushroomsir/ipcheck"
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/mushroomsir/ipcheck"
+)
 
 func main() {
-	 ipcheck.IsRange("::1", "::2/128")
-	 ipcheck.IsRange("2001:cdba::3257:9652", "2001:cdba::3257:9652/128")
-	 ipcheck.Check("10.0.0.1").IsBogon
-	 ipcheck.Check("10.10.10.10").IsValid
+	ipcheck.IsRange("::1", "::2/128")
+	ipcheck.IsRange("2001:cdba::3257:9652", "2001:cdba::3257:9652/128")
+	ipcheck.AddBogonsRang("30.0.0.0/8", "11.0.0.0/8")
+	ipcheck.RemoveBogonRang("224.0.0.0/3")
 
-	 ipcheck.AddBogonsRang("30.0.0.0/8", "11.0.0.0/8")
-	 ipcheck.RemoveBogonRang("224.0.0.0/3")
+	fmt.Println(ipcheck.Check("10.0.0.1").IsBogon)      // true
+	fmt.Println(ipcheck.Check("10.10.10.10").IsValid)   // true
+	fmt.Println(ipcheck.DeepCheck("30.9.8.7").IsSafe()) // false
 
-	 ipcheck.DeepCheck("30.9.8.7").IsSafe()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	defer cancel()
+	fmt.Println(ipcheck.DeepCheckWithContext(ctx, "github.com").IsSafe())      // true
+	fmt.Println(ipcheck.DeepCheckWithContext(ctx, "invalidhost.abc").IsSafe()) // false
 }
-
 ```
 
 ## Licenses

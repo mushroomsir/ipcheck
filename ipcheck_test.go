@@ -11,7 +11,7 @@ import (
 func TestDeepCheck(t *testing.T) {
 	require := require.New(t)
 	require.Equal("1.2.3.4", ipcheck.Check("1.2.3.4").OriginalIP)
-	require.True(ipcheck.DeepCheck("11.9.0.0").IsSafe())
+	require.False(ipcheck.DeepCheck("11.9.0.0").IsSafe())
 
 	ipcheck.AddBogonsRang("30.0.0.0/8", "11.0.0.0/8")
 	ipcheck.RemoveBogonRang("224.0.0.0/3")
